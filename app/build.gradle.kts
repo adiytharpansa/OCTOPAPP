@@ -14,6 +14,22 @@ android {
         versionCode = 3
         versionName = "1.2"
     }
+    signingConfigs {
+        create("stable") {
+            storeFile = rootProject.file("debug.keystore")
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+        }
+    }
+    buildTypes {
+        debug {
+            signingConfig = signingConfigs.getByName("stable")
+        }
+        release {
+            signingConfig = signingConfigs.getByName("stable")
+        }
+    }
     buildFeatures { compose = true }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
