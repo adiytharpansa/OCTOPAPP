@@ -11,8 +11,8 @@ android {
         applicationId = "cloud.octop.mobile"
         minSdk = 26
         targetSdk = 34
-        versionCode = 3
-        versionName = "1.2"
+        versionCode = 4
+        versionName = "1.2.1"
     }
     signingConfigs {
         create("stable") {
@@ -28,6 +28,9 @@ android {
         }
         release {
             signingConfig = signingConfigs.getByName("stable")
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
     buildFeatures { compose = true }

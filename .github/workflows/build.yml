@@ -26,10 +26,13 @@ jobs:
       - name: Build APK rilis
         run: gradle :app:assembleRelease --stacktrace
 
-      - name: Periksa tanda tangan APK
+      - name: Verifikasi keras APK (zipalign + tanda tangan + badging)
         run: |
-          APKSIGNER=$(find "$ANDROID_HOME/build-tools" -name apksigner | sort -V | tail -1)
-          "$APKSIGNER" verify --print-certs app/build/outputs/apk/release/app-release.apk | grep -i "certificate SHA-256" || true
+          BT=$(find "$ANDROID_HOME/build-tools" -maxdepth 1 -mindepth 1 -type d | sort -V | tail -1)
+          echo "build-tools: $BT"
+          "$BT/zipalign" -c -P 16 -v 4 app/build/outputs/apk/release/app-release.apk > zipalign.log 2>&1 || (cat zipalign.log && exit 1)
+          "$BT/apksigner" verify --verbose --print-certs app/build/outputs/apk/release/app-release.apk
+          "$BT/aapt2" dump badging app/build/outputs/apk/release/app-release.apk | head -8
           ls -la app/build/outputs/apk/release/
 
       - name: Unggah APK
@@ -71,6 +74,7 @@ jobs:
           disable-animations: true
           script: |
             adb install -r app-release.apk
+            adb shell pm grant cloud.octop.mobile android.permission.POST_NOTIFICATIONS || true
             adb shell am start -n cloud.octop.mobile/.MainActivity
             sleep 14
             adb exec-out screencap -p > uji-setup.png
